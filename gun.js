@@ -1,4 +1,6 @@
 class Gun {
+    #delta;
+
     constructor(x, y, rng) {
         angleMode(DEGREES);
         this.pos = createVector(x, y);
@@ -9,7 +11,7 @@ class Gun {
         this.thetaVel = 0;
         this.thetaAcc = 0;
         this.aim_angle = this.theta;
-        this.delta = this.aim_angle - this.theta;
+        this.#delta = this.aim_angle - this.theta;
         this.vel_max = 0.75;
 
         this.HP = 100;
@@ -21,6 +23,11 @@ class Gun {
         this.vel = createVector(0, 0);
         this.acc = createVector(0, 0);
     }
+
+    get delta() {
+        this.#delta = this.aim_angle - this.theta;
+        return this.#delta;
+    }
     
     set_range(r) {
         if (r < this.rng_max && r > this.rng_min){
@@ -28,20 +35,35 @@ class Gun {
         }
     }
 
-    steer(dir) {
+    // steer(dir) {
+    //     let aim_acc = 0.01;
+    //     if (this.aim_angle >= -90 && this.aim_angle <= 90) {
+    //         if(dir < 38) {
+    //             //steer left
+    //             if (this.delta < 0) {this.applyForce(aim_acc *-1);}
+    //             this.aim_angle += -1;
+    //         } else if (dir > 38) {
+    //             //steer right
+    //             if (this.delta > 0) {this.applyForce(aim_acc);}
+    //             this.aim_angle += 1;
+    //         } 
+    //         if(this.aim_angle > 90) {this.aim_angle = 90;}
+    //         else if(this.aim_angle < -90) {this.aim_angle = -90;}
+    //         // console.log("AAgun cannot move past " + this.aim_angle);
+    //     }
+    // }
+
+    steer() {
         let aim_acc = 0.01;
         if (this.aim_angle >= -90 && this.aim_angle <= 90) {
-            if(dir < 38) {
-                //steer left
-                if (this.delta < 0) {this.applyForce(aim_acc *-1);}
-                this.aim_angle += -1;
-            } else if (dir > 38) {
-                //steer right
-                if (this.delta > 0) {this.applyForce(aim_acc);}
-                this.aim_angle += 1;
-            } 
-            if(this.aim_angle > 90) {this.aim_angle = 90;}
-            else if(this.aim_angle < -90) {this.aim_angle = -90;}
+            //steer left
+            if (this.delta < 0) {
+                this.applyForce(aim_acc *-1);
+            }
+            //steer right
+            if (this.delta > 0) {
+                this.applyForce(aim_acc);
+            }
             // console.log("AAgun cannot move past " + this.aim_angle);
         }
     }
@@ -51,7 +73,7 @@ class Gun {
     }
 
     move() {
-        this.delta = this.aim_angle - this.theta;
+        // this.delta = this.aim_angle - this.theta;
 
         if (this.theta >= -90 && this.theta <= 90) {
             if (this.thetaVel <= this.vel_max && this.thetaVel >= -1* this.vel_max){

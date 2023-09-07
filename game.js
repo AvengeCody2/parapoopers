@@ -22,6 +22,7 @@ const drag = 0.05;
 let applyRange = 72;
 
 let AAgun;
+let aimAt;
 let ee;
 
 function preload() {
@@ -65,7 +66,8 @@ function draw() {
   textAlign(LEFT);
   text("Kills: " + killCount, 40, 20);
   text("Kills to next round: " + kills_left, 40, 40);
-  text("Angle: " + (AAgun.theta + 90).toFixed(1), 40, height - 40);
+  text("Angle: " + (AAgun.theta).toFixed(1), 40, height - 60);
+  text("Angle: " + (AAgun.aim_angle).toFixed(1), 40, height - 40);
   text("Speed: " + Number((AAgun.vel_max *100).toFixed(0)), 40, height-20);
 
 
@@ -88,13 +90,13 @@ function draw() {
       wind.set(-0.5, 0);
   }
 
-  if (keyIsDown(37)) {
-    //left arrow
-    AAgun.steer(37);
-  } else if (keyIsDown(39)) {
-    //right arrow
-    AAgun.steer(39);
-  }
+  // if (keyIsDown(37)) {
+  //   //left arrow
+  //   AAgun.steer(37);
+  // } else if (keyIsDown(39)) {
+  //   //right arrow
+  //   AAgun.steer(39);
+  // }
 
   if (keyIsDown(UP_ARROW)) {
     if(applyRange < AAgun.rng_max) {
@@ -152,8 +154,7 @@ function draw() {
       bullets.splice(bullets.indexOf(b), 1);
     }
   }
-  aim(AAgun.pos.x, AAgun.pos.y, AAgun.aim_angle, color(150,255,0,150));
-  // aim(AAgun.pos.x, AAgun.pos.y, AAgun.theta, 'red');
+  aim(AAgun.pos.x, AAgun.pos.y, color(150,255,0,150));
 
   if (game_on) {
     if (kills_left > 0 && AAgun.alive == true) {
@@ -184,12 +185,26 @@ function draw() {
 
 
 
-function aim(x, y, angle, color){
+function aim(x, y, color){
   angleMode(DEGREES);
-  noFill();
 
+  aimAt = createVector(x - mouseX, y - mouseY);
+  stroke(255, 0, 0, 128);
+  strokeWeight(3);
+  line(mouseX - 20, mouseY, mouseX + 20, mouseY);
+  line(mouseX, mouseY - 20, mouseX, mouseY + 20);
+
+  if (mouseY <= y) {
+    AAgun.aim_angle = aimAt.heading() - 90;
+  } else if (mouseX >= x) {
+    AAgun.aim_angle = 90;
+  } else if (mouseX < x) {
+    AAgun.aim_angle = -90;
+  }
+
+  noFill();
   stroke(color);
-  let phi = angle - 90;
+  let phi = AAgun.aim_angle - 90;
   let mag = applyRange;
   let p = createVector(x + (mag * cos(phi)),y + (mag * sin(phi)));
   strokeWeight(4);
@@ -206,10 +221,12 @@ function aim(x, y, angle, color){
   stroke(255, 1.2*mag);
   circle(p.x+(1.2*mag*cos(phi)), y, 8);
 
+  AAgun.steer();
   stroke(255, 0, 0, 150);
-  line(x, y, p.x+(1.2*mag*cos(AAgun.theta-90)), p.y+(1.2*mag*sin(AAgun.theta-90)))
+  let theta = AAgun.theta-90;
+  line(x, y, x+(2.2*mag*cos(theta)), y+(2.2*mag*sin(theta)));
   strokeWeight(3);
-  circle(p.x+(1.2*mag*cos(AAgun.theta-90)), p.y+(1.2*mag*sin(AAgun.theta-90)), 3);
+  circle(x+(2.2*mag*cos(theta)), y+(2.2*mag*sin(theta)), 3);
 }
 
 function HPBar() {
@@ -273,5 +290,27 @@ function keyTyped() {
 
   if (keyCode === 32) {
     fireBullet();
+  }
+}
+
+function mouseWheel(event) {
+  fill(255);
+  stroke(0);
+  textSize(16);
+  textAlign(RIGHT);
+  console.log("mouseWheel: " + event.delta);
+
+  if(event.delta > 0) {
+    //scroll down
+    if (applyRange > AAgun.rng_min){
+      applyRange -= 0.25;
+      AAgun.set_range(applyRange);
+    }
+  } else if (event.delta < 0) {
+    //scroll up
+    if(applyRange < AAgun.rng_max) {
+      applyRange += 0.25;
+      AAgun.set_range(applyRange);
+    }    
   }
 }
