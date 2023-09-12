@@ -8,7 +8,7 @@ class Parachute extends PhysicalObject{
         this.height = 40;
         this.area = this.width * this.height;
 
-        this.hp = hp;
+        this.HP = hp;
     }
 
     edges() {
@@ -46,6 +46,13 @@ class Parachute extends PhysicalObject{
             strokeWeight(1);
             textSize(12);
             text(this.text(), 40, text_y)
+        }
+    }
+
+    damage(dmg) {
+        this.HP -= dmg;
+        if (this.HP <= 0) {
+            this.kill();
         }
     }
 }

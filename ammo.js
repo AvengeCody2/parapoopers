@@ -5,7 +5,7 @@ class Bullet extends PhysicalObject {
         this.width = 1;
         this.range = rng;
 
-        this.blast = 50;
+        this.blast;
         this.exploded = false;
     }
 
@@ -16,11 +16,13 @@ class Bullet extends PhysicalObject {
     }
 
     move() {
-        this.vel.add(this.acc);
-        if (this.vel.y < 0) {
-            this.pos.add(this.vel);
-        } else {
-            this.explode();
+        if(this.exploded == false) {
+            this.vel.add(this.acc);
+            if (this.vel.y < 0) {
+                this.pos.add(this.vel);
+            } else {
+                this.explode();
+            }
         }
 
         this.a_out = "ACC(x: " + this.acc.x.toFixed(2) + " y: " + this.acc.y.toFixed(2) + ")\t";
@@ -29,18 +31,19 @@ class Bullet extends PhysicalObject {
 
     explode() {
         this.vel.set(0, 0);
-        // this.t = millis();
+        this.blast = new Explosion(this.pos.x, this.pos.y, this.range);
+        console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
         this.exploded = true;
     }
 
     hits(target) {
         let d = p5.Vector.sub(this.pos, target.pos);
         if (d.mag() < this.width/2 + target.height/3) {
-            if (this.exploded || target.name == "Enemy") {
-                target.kill();
+            if (this.exploded) {
+                target.damage(this.blast.blast);
             } else if(target.name == "Enemy") {
                 this.vel.add(target.vel);
-                target.kill();
+                target.damage(1);
             }
             
         }
@@ -55,13 +58,11 @@ class Bullet extends PhysicalObject {
 
         //explode
         if (this.exploded) {
-            let now = millis() - this.t;
-            if (now/10 < 150) {
-                fill(255, 180 + hue, 204, 235);
-                this.width = map(round(now/10), 0, 150, 1, this.blast);
-                circle(this.pos.x, this.pos.y, this.width);
-            }
-            if (now/10 >= 150) {
+            if (this.blast.active) {
+                //draw explosion
+                this.blast.draw();
+                this.width = this.blast.width;
+            } else {
                 this.active = false;
             }
         } else {

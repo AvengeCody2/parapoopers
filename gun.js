@@ -176,7 +176,7 @@ class Gun {
         if (d.mag() < 40 && enemy.alive == true) {
             console.log("You're hit!!!");
             enemy.active = false;
-            this.HP -= enemy.HP*5;
+            this.HP -= enemy.HP+1;
             if (this.HP <= 50 && this.HP > 25) {
                 console.log("Cannon movement slowed down!");
                 this.vel_max = 0.50;

@@ -303,13 +303,13 @@ function mouseWheel(event) {
   if(event.delta > 0) {
     //scroll down
     if (applyRange > AAgun.rng_min){
-      applyRange -= 0.25;
+      applyRange -= 0.5;
       AAgun.set_range(applyRange);
     }
   } else if (event.delta < 0) {
     //scroll up
     if(applyRange < AAgun.rng_max) {
-      applyRange += 0.25;
+      applyRange += 0.5;
       AAgun.set_range(applyRange);
     }    
   }

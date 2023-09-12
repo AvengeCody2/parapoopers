@@ -1,5 +1,5 @@
 class Enemy extends PhysicalObject {
-    constructor(x, y, mass = 25, hp=1) {
+    constructor(x, y, mass = 25, hp=4) {
         super(x, y, mass)
         this.name = "Enemy";
         this.HP = hp;
@@ -170,6 +170,13 @@ class Enemy extends PhysicalObject {
                 // circle(pos.x-2, pos.y-16,2);
                 // circle(pos.x+4, pos.y-16,2);
             }
+        }
+    }
+
+    damage(dmg) {
+        this.HP -= dmg;
+        if (this.HP <= 0) {
+            this.kill();
         }
     }
 
