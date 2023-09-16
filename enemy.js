@@ -41,7 +41,7 @@ class Enemy extends PhysicalObject {
     // }
 
     edges() {
-        if (this.pos.y > height - 20 || this.pos.x < -10 || this.pos.x > width+10) {
+        if (this.pos.y > height - 40 || this.pos.x < -10 || this.pos.x > width+10) {
 
             if (this.vel.y > 3.5) { 
                 // go splat!
@@ -52,13 +52,13 @@ class Enemy extends PhysicalObject {
     }
 
     move() {
-        if (this.pos.y <= height -20) {
+        if (this.pos.y <= height -40) {
             if (this.chute.active == true){
                 this.acc.set(this.chute.acc);
                 this.chute.move();
             }
-        } else if (this.pos.y > height - 20) {
-            this.pos.y = height - 20;
+        } else if (this.pos.y > height - 40) {
+            this.pos.y = height - 40;
             this.chute.active = false;
             this.acc.set(0,0);
             if (this.alive) {
@@ -93,7 +93,7 @@ class Enemy extends PhysicalObject {
             this.chute.draw();
         }
 
-    if (this.alive == false && this.pos.y >= height - 20) {
+    if (this.alive == false && this.pos.y >= height - 40) {
         fill(51, 0, 0);
         stroke(71, 31, 0);
         strokeWeight(1);

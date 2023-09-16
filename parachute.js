@@ -1,5 +1,5 @@
 class Parachute extends PhysicalObject{
-    constructor(x, y, hp=1) {
+    constructor(x, y, hp=15) {
         super(x, y, 1);
         this.name = "Parachute";
 
