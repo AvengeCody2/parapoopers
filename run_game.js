@@ -1,5 +1,6 @@
 let mouse;
 let mouseReady = false;
+let fullAuto = false;
 let t;
 let t_round;
 
@@ -25,7 +26,7 @@ let applyRange = 72;
 let AAgun;
 let aimAt;
 let ee;
-let pln;
+let pp;
 
 
 function setup() {
@@ -39,7 +40,7 @@ function setup() {
   AAgun.alive = true;
   // AAgun.HP = 50;
   ee = new Enemy(width - 400, height / 2);
-  pln = new Plane(width - 400, 200);
+  pp = new Plane(width - 400, 200);
 
 }
 
@@ -77,13 +78,14 @@ function draw() {
     if (mouseButton === LEFT) {
       if (mouseReady === true) {
         fireBullet();
-        mouseReady = false;
+
       }
     } else if (mouseButton === CENTER) {
-      if (mouseReady === true){
-        thePlane();
+      if (fullAuto === false) {
+        fullAuto = true;
+      } else {
+        fullAuto = false;
       }
-      mouseReady = false;
     }
   } else if (mouseIsPressed === false) {
     mouseReady = true;
@@ -161,7 +163,10 @@ function draw() {
     if (kills_left > 0 && AAgun.alive == true) {
       if (t % enemy_density < 16) {
         if (next_wave_ready) {
-          dropEnemyWave();
+          // dropEnemyWave();
+          if (pp.active == false) {
+            next_wave_ready = false;
+          }
         } else {
           dropEnemy();
         }
@@ -253,6 +258,12 @@ function HPBar(x = width / 2 - 200, y = height - 20) {
 }
 
 function fireBullet() {
+  if (fullAuto === false) {
+    mouseReady = false;
+  } else if (fullAuto === true) {
+    if (t%250<200) { mouseReady = true;}
+    else { mouseReady = false;}
+  }
   if (AAgun.alive) {
     angleMode(DEGREES);
     let c = new Bullet(AAgun.pos.x, AAgun.pos.y - 14, applyRange);
@@ -264,16 +275,9 @@ function fireBullet() {
 }
 
 function thePlane() {
-  let pp = new Plane(-200, 200);
+  pp = new ParapooperPlane(-200, 200);
   objects.push(pp);
-
-  let drop_x = 192;
-  let geronimo = true;
-  if (pp.x >= drop_x) {
-    dropEnemy(pp.x-150, pp.y-80);
-    drop_x += 192;
-  }
-
+  next_wave_ready = true;
 }
 
 function dropEnemy(x = random(40, width - 40), y = random(-40, 40)) {
@@ -295,9 +299,11 @@ function startNewRound() {
   game_on = true;
   t_round = millis();
   if (game_round % 30 == 0) {
-    next_wave_ready = true;
+    // next_wave_ready = true;
+    dropEnemyWave();
   }
   if (game_round % 3 == 0) {
+    thePlane();
     enemy_density -= 200;
   }
 }

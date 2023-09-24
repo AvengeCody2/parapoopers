@@ -5,7 +5,7 @@ class Plane extends PhysicalObject{
     constructor (x, y, mass=100, hp = 100) {
         super(x, y, mass);
         this.vel.x = 5;
-        this.name = "Plane";
+        this.name = 'Plane';
         this.HP = hp;
         this.#thrust = createVector(0.05, 0);
         this.#lift = createVector(0, -0.2);
@@ -145,10 +145,18 @@ class ParapooperPlane extends Plane {
     edges() {
         if(this.pos.x > width + 300) {
             this.active = false;
-        } else if (this.pos.x < width) {
+        } else if (this.pos.x < width && this.alive === true) {
             //be dropping troops
+            this.parapoop()
         } else if (this.pos.y > height - 40) {
             //this plane crashed
+        }
+    }
+
+    parapoop() {
+        if (this.pos.x >= this.drop_x) {
+            dropEnemy(this.pos.x - 150, this.pos.y);
+            this.drop_x += 192;
         }
     }
 
