@@ -28,9 +28,14 @@ let aimAt;
 let ee;
 let pp;
 
+let currentGame;
+
+function preload() {
+  Nosifer = loadFont('./assets/NosiferCaps-Regular.ttf');
+}
 
 function setup() {
-  // textFont(myFont);
+  textFont(Nosifer);
   angleMode(DEGREES);
   createCanvas(windowWidth - 100, windowHeight - 100);
   g = createVector(0, gravity); //gravity
@@ -41,7 +46,6 @@ function setup() {
   // AAgun.HP = 50;
   ee = new Enemy(width - 400, height / 2);
   pp = new Plane(width - 400, 200);
-
 }
 
 function draw() {
@@ -71,7 +75,11 @@ function draw() {
 
   // AAgun
   HPBar();
-  //ee.draw();
+  ee.draw();
+  rectMode(CORNER);
+  noFill();
+  stroke(255,0,0);
+  rect(ee.chute.pos.x - 50, ee.chute.pos.y-20, 100, 20);
   // pln.draw();
   //CONTROLS
   if (mouseIsPressed === true) {
@@ -142,8 +150,8 @@ function draw() {
     b.fall(g);
     b.move();
     b.edges();
-    // b.hits(ee);
-    // b.hits(ee.chute);
+    b.hits(ee);
+    b.hits(ee.chute);
     for (x of objects) {
       if (x.active) {
         b.hits(x);
@@ -176,20 +184,24 @@ function draw() {
     }
   } else if (AAgun.alive) {
     textAlign(CENTER, CENTER);
-    fill(144, 98, 0);
-    stroke(0);
+    fill(76, 20, 0);
+    // fill(255);
+    stroke(144, 98, 0);
+    textFont(Nosifer);
     textSize(48);
     if (game_round == 20) {
       //You won!
       text("YOU WON!\nPress E to keep going!", width / 2, height / 2);
     } else {
-      text("Press E to start round " + (game_round + 1), width / 2, height / 2);
+      // text("PRESS E TO START ROUND " + (game_round + 1), width / 2, height / 2);
+      // loadFont('assets/nosifer.ttf', drawText);
     }
   } else {
     textAlign(CENTER, CENTER);
     fill(255);
     stroke(0);
     textSize(48);
+    textFont(Nosifer);
     text("GAME OVER", width / 2, height / 2);
   }
 }
@@ -254,7 +266,7 @@ function HPBar(x = width / 2 - 200, y = height - 20) {
   stroke(0);
   fill(255, 255);
   textAlign(CENTER);
-  text("HEALTH", x + 200, y + 10);
+  text("HEALTH", x + 200, y + 5);
 }
 
 function fireBullet() {
@@ -344,4 +356,13 @@ function mouseWheel(event) {
       AAgun.set_range(applyRange);
     }
   }
+}
+
+function drawText(font) {
+  textAlign(CENTER, CENTER);
+  // fill(144, 98, 0);
+  fill(255);
+  stroke(0);
+  textFont(font, 48);
+  text("Press E to start round ", width/2, height/2);
 }

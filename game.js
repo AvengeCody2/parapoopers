@@ -53,6 +53,61 @@ class Game {
         }
     }
 
+    get objects() {
+        return this.#objects;
+    }
+
+    get bullets() {
+        return this.#bullets;
+    }
+
+    //Moves and draws all enemies and dropped objects on screen
+    animateObjects() {
+        let stuff = [];
+        for (x of this.#objects) {
+          // console.log("_Gravity_");
+          x.fall(g)
+          // console.log("_Drag_");
+          x.drag(drag);
+          x.move();
+          x.edges();
+          AAgun.hit(x);
+          if (AAgun.alive == false) {
+            game_on = false;
+          }
+      
+          let i = this.#objects.indexOf(x);
+          x.draw(false, (i + 1) * 12); //can turn debug text on/off with bool
+      
+          if (x.active === true) {
+            stuff.push(x);
+          } else if (x.name == 'Enemy') {
+            if (x.alive == false) { killCount += 1; }
+          }
+        }
+        this.#objects = [];
+        this.#objects = (this.#objects.concat(stuff)).flat();
+    }
+
+    //Move and draw all bullets fired by player
+    animateBullets() {
+        for (b of this.#bullets) {
+            b.fall(g);
+            b.move();
+            b.edges();
+            for (x of this.#objects) {
+              if (x.active) {
+                b.hits(x);
+              }
+            }
+            if (b.active) {
+              b.draw();
+            } else {
+              this.#bullets.splice(this.#bullets.indexOf(b), 1);
+            }
+          }
+    }
+
     next_round() {
         this.#round += 1;
         this.#status == 'ACTIVE'
@@ -79,14 +134,15 @@ class Game {
         //which menu? is there more than one?
     }
 
-    dropEnemy(x = random(40, width-40), y = random(-40, 0)) {
-        let e = new Enemy(x, y);
-        this.#objects.push(e);
-        this.#objects.push(e.chute);
-    }
+}
 
-    paradropPlane(altitude=200) {
-        let pp = new Plane(-200, altitude);
-        this.#objects.push(pp);
-    }
+function dropEnemy(x = random(40, width-40), y = random(-40, 0)) {
+    let e = new Enemy(x, y);
+    currentGame.objects.push(e);
+    currentGame.objects.push(e.chute);
+}
+
+function paradropPlane(altitude=200) {
+    let pp = new Plane(-200, altitude);
+    currentGame.objects.push(pp);
 }

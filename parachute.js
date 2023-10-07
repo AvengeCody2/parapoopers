@@ -5,14 +5,14 @@ class Parachute extends PhysicalObject{
 
         this.deployed = true;
         this.width = 100;
-        this.height = 40;
+        this.height = 20;
         this.area = this.width * this.height;
 
         this.HP = hp;
     }
 
     edges() {
-        if (this.pos.y > height - 40) {
+        if (this.pos.y > height - 20) {
             this.active = false;
         }
     }
@@ -38,7 +38,7 @@ class Parachute extends PhysicalObject{
         fill(210);
         stroke(255);
         strokeWeight(1);
-        arc(this.pos.x, this.pos.y, this.width, this.height, PI, 0, OPEN);
+        arc(this.pos.x, this.pos.y, this.width, this.height*2, PI, 0, OPEN);
 
         if (verbose) {
             fill(0);

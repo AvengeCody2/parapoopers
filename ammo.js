@@ -2,7 +2,7 @@ class Bullet extends PhysicalObject {
     constructor (x, y, rng) {
         super(x, y, 6);
         this.name = "Bullet";
-        this.width = 1;
+        this.radius = 1;
         this.range = rng;
 
         this.blast;
@@ -32,21 +32,35 @@ class Bullet extends PhysicalObject {
     explode() {
         this.vel.set(0, 0);
         this.blast = new Explosion(this.pos.x, this.pos.y, this.range);
-        console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
+        // console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
         this.exploded = true;
     }
 
+    // Unfortunately, this method appears to do damage every cycle of the loop that it's collision with an enemy object is detected.
     hits(target) {
-        let d = p5.Vector.sub(this.pos, target.pos);
-        if (d.mag() < this.width/2 + target.height/3) {
-            if (this.exploded) {
-                target.damage(this.blast.blast);
-            } else if(target.name == "Enemy") {
-                this.vel.add(target.vel);
-                target.damage(1);
+        if (this.pos.x - this.radius > target.left_most_edge() && this.pos.x + this.radius < target.right_most_edge()) {
+            let d = abs(this.pos.y - target.pos.y);
+            let h = this.radius + target.height;
+            if (d < h) {
+                if (this.exploded) {
+                    target.damage(this.blast.blast);
+                } else if(target.name.includes("Enemy")) {
+                    this.vel.add(target.vel);
+                    target.damage(1);
+                    console.log("damaged " + target.name);
+                }
             }
-            
         }
+
+        // let d = p5.Vector.sub(this.pos, target.pos);
+        // if (d.mag() < this.radius/2 + target.height/3) {
+        //     if (this.exploded) {
+        //         target.damage(this.blast.blast);
+        //     } else if(target.name == "Enemy") {
+        //         this.vel.add(target.vel);
+        //         target.damage(1);
+        //     }            
+        // }
     }
     
     draw(verbose = false, text_y = 12) {
@@ -61,7 +75,7 @@ class Bullet extends PhysicalObject {
             if (this.blast.active) {
                 //draw explosion
                 this.blast.draw();
-                this.width = this.blast.width;
+                this.radius = this.blast.radius;
             } else {
                 this.active = false;
             }

@@ -4,7 +4,7 @@ class Explosion {
         this.range = range;
         this.t = millis();
 
-        this.width = 1;
+        this.radius = 1;
         this.damage = 20;
         this.blast = blast;
 
@@ -22,8 +22,8 @@ class Explosion {
         //explode in 0.8 seconds
         let duration = 800
         if (now < duration) {
-            this.width = map(now, 0, duration, 1, this.blast);
-            circle(this.pos.x, this.pos.y, this.width);
+            this.radius = map(now, 0, duration, 1, this.blast);
+            circle(this.pos.x, this.pos.y, this.radius);
         } else if (now >= duration) {
             this.active = false;
         }

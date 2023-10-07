@@ -18,6 +18,17 @@ class PhysicalObject {
         this.width = this.radius * PI; //half the circumference
     }
 
+
+    left_most_edge() {
+        let left_edge = this.pos.x - (this.width/2);
+        return left_edge;
+    }
+    
+    right_most_edge() {
+        let right_edge = this.pos.x + (this.width/2);
+        return right_edge;
+    }
+
     fall(g) {
         let weight = p5.Vector.mult(g, this.mass);
         this.applyForce(weight);
