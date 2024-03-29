@@ -1,5 +1,5 @@
 class Explosion {
-    constructor(x, y, range, blast = 50) {
+    constructor(x, y, range, blast = 100) {
         this.pos = createVector(x, y);
         this.range = range;
         this.t = millis();
@@ -15,12 +15,14 @@ class Explosion {
         let now = millis() - this.t;
         
 
-        let hue = map(this.range, 30, 110, 0, 75, true);
+        let hue = map(this.range, 30, 110, 0, 100, true);
         noStroke();
+        // stroke(255, 100, 0); //for debugging
         fill(255, 180 + hue, 204, 255 - (now/12));
+        ellipseMode(CENTER);
 
-        //explode in 0.8 seconds
-        let duration = 800
+        //explode in 0.6 seconds
+        let duration = 600
         if (now < duration) {
             this.radius = map(now, 0, duration, 1, this.blast);
             circle(this.pos.x, this.pos.y, this.radius);
