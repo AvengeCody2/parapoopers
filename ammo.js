@@ -98,10 +98,11 @@ class Bullet extends PhysicalObject {
         }
 
         //for debugging
-        stroke(255, 100, 0);
-        point(this.pos.x, this.pos.y);
-        circle(this.pos.x, this.pos.y, this.radius);
-        
+        if (debug === true){
+            stroke(255, 100, 0);
+            point(this.pos.x, this.pos.y);
+            circle(this.pos.x, this.pos.y, this.radius);
+        }
 
         if (verbose) {
             fill(0);

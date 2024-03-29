@@ -1,5 +1,5 @@
 class Enemy extends PhysicalObject {
-    constructor(x, y, mass = 25, hp=4) {
+    constructor(x, y, mass = 25, hp=40) {
         super(x, y, mass)
         this.name = "Enemy";
         this.HP = hp;

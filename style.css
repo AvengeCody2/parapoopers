@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "NosiferCaps";
+  src: url(/assets/NosiferCaps.ttf) format("truetype");
+}
+
 html, body {
   margin: 0;
   padding: 0;
