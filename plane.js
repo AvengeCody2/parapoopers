@@ -2,7 +2,7 @@ class Plane extends PhysicalObject{
     #thrust;
     #lift;
 
-    constructor (x, y, mass=100, hp = 100) {
+    constructor (x, y, mass=100, hp = 1500) {
         super(x, y, mass);
         this.vel.x = 5;
         this.name = 'Plane';
@@ -11,6 +11,9 @@ class Plane extends PhysicalObject{
         this.#lift = createVector(0, -0.2);
         this.alive = true;
         this.death = null;
+
+        this.width = 280;
+        this.height = 50;
     }
 
     get thrust() {
@@ -66,12 +69,24 @@ class Plane extends PhysicalObject{
     //     this.pos.add(this.vel);
     // }
 
+    hitBoxStart() {
+        let rect_start = createVector(this.pos.x - this.width/2, this.pos.y - this.height/2);
+
+        return rect_start;
+    }
+
+    hitBoxEnd() {
+        let rect_size = createVector(this.width, this.height);
+
+        return rect_size;
+    }
+    
     hit() {
         //When the plane takes damage, it's thrust and lift should be impacted
     }
 
 
-    draw(verbose = false, text_y = 12) {
+    draw(debug = true, verbose = false, text_y = 12) {
         // let x = this.pos.x;
         // let y = this.pos.y;
 
@@ -80,40 +95,56 @@ class Plane extends PhysicalObject{
         rotate(this.vel.heading());
 
         rectMode(CENTER);
+        angleMode(RADIANS);
         noStroke();
-        strokeWeight(2);
+        strokeWeight(1);
         // stroke(255);
-        fill(91, 0, 0);
-        rect(0-95, 0, 150, 40);
-        arc(0, 0-10, 60, 40, 180, 45, CHORD);
-        arc(0-20, 0, 140, 40, -90, 90, PIE);
+        fill(51, 0, 0);
+        rect(0-5, 0, 150, 40);
+        arc(0+90, 0-10, 60, 40, PI, PI/4, CHORD);
+        arc(0+70, 0, 140, 40, -PI/2, PI/2, PIE);
         
+        //tail
         beginShape();
-        vertex(0-170, 0+20);
-        vertex(0-230, 0);
-        vertex(0-250, 0-60);
-        vertex(0-220, 0-60);
-        vertex(0-190, 0-15);
-        vertex(0-170, 0-20);
+        vertex(0-80, 0+20);
+        vertex(0-140, 0);
+        vertex(0-160, 0-60);
+        vertex(0-130, 0-60);
+        vertex(0-100, 0-15);
+        vertex(0-80, 0-20);
         endShape(CLOSE);
         
+        //wing
         stroke(121, 80, 80);
         beginShape();
-        vertex(0-40, 0+10);
-        vertex(0-130, 0+40);
-        vertex(0-170, 0+40);
-        vertex(0-110, 0+10);
+        vertex(0+50, 0+10);
+        vertex(0-40, 0+40);
+        vertex(0-80, 0+40);
+        vertex(0-20, 0+10);
         endShape();
         
+        //cockpit
         fill(0);
         beginShape();
-        vertex(0+10, 0-23);
-        vertex(0+18, 0-23);
-        vertex(0+23, 0-18);
-        vertex(0+12, 0-18);
+        vertex(0+100, 0-23);
+        vertex(0+108, 0-23);
+        vertex(0+113, 0-18);
+        vertex(0+102, 0-18);
         endShape(CLOSE);
 
         pop();
+
+        if (debug === true) {
+            push();
+            rectMode(CORNER);
+            stroke(220, 255, 0);
+            strokeWeight(3);
+            point(this.pos);
+            strokeWeight(1);
+            noFill();
+            rect(this.hitBoxStart().x, this.hitBoxStart().y, this.hitBoxEnd().x, this.hitBoxEnd().y);
+            pop();
+        }
 
         if (verbose) {
             fill(0);
@@ -124,6 +155,22 @@ class Plane extends PhysicalObject{
             console.log(this.text());
         }
 
+    }
+
+    damage(dmg) {
+        this.HP -= dmg;
+        if (this.HP <= 0) {
+            this.kill();
+        }
+    }
+
+    kill() {
+        if(this.alive) {
+            this.death = millis();
+            this.vel.x = 3;
+            this.lift = 0;
+        }
+        this.alive = false;
     }
 }
 
