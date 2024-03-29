@@ -25,7 +25,19 @@ class Parachute extends PhysicalObject{
         this.acc.set(0, 0);
     }
 
-    draw(verbose = false, text_y = 12) {
+    hitBoxStart() {
+        let rect_start = createVector(this.pos.x-this.width/2, this.pos.y - this.height);
+
+        return rect_start;
+    }
+
+    hitBoxEnd() {
+        let rect_size = createVector(this.width, this.height);
+
+        return rect_size;
+    }
+
+    draw(debug = false, verbose = false, text_y = 12) {
         // cords
         stroke(5, 50, 0);
         strokeWeight(2);
@@ -39,6 +51,19 @@ class Parachute extends PhysicalObject{
         stroke(255);
         strokeWeight(1);
         arc(this.pos.x, this.pos.y, this.width, this.height*2, PI, 0, OPEN);
+
+        //draw the hit box
+        if (debug === true) {
+            push();
+            rectMode(CORNER);
+            stroke(220, 255, 0);
+            strokeWeight(3);
+            point(this.pos);
+            strokeWeight(1);
+            noFill();
+            rect(this.hitBoxStart().x, this.hitBoxStart().y, this.hitBoxEnd().x, this.hitBoxEnd().y);
+            pop();
+        }
 
         if (verbose) {
             fill(0);

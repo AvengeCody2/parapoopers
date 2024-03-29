@@ -15,18 +15,43 @@ class PhysicalObject {
         this.t = millis();
 
         this.radius = sqrt(this.mass);
-        this.width = this.radius * PI; //half the circumference
+        this.width = this.radius * 2;
+        this.height = this.radius * 2;
+
+        this.dmg = 0;
     }
 
 
     left_most_edge() {
-        let left_edge = this.pos.x - (this.width/2);
+        let left_edge = this.pos.x - this.radius;
         return left_edge;
     }
     
     right_most_edge() {
-        let right_edge = this.pos.x + (this.width/2);
+        let right_edge = this.pos.x + this.radius;
         return right_edge;
+    }
+
+    top_most_edge() {
+        let top_edge = this.pos.y - this.radius;
+        return top_edge;
+    }
+
+    bottom_most_edge() {
+        let bottom_edge = this.pos.y + this.radius;
+        return bottom_edge;
+    }
+
+    hitBoxStart() {
+        let rect_start = createVector(this.left_most_edge(), this.top_most_edge());
+
+        return rect_start;
+    }
+
+    hitBoxEnd() {
+        let rect_size = createVector(this.width, this.height);
+
+        return rect_size;
     }
 
     fall(g) {
@@ -76,12 +101,24 @@ class PhysicalObject {
         return (this.m_out + this.t_out + this.a_out + this.v_out + this.p_out);
     }
 
-    draw(verbose = false, text_y = 12) {
+    draw(debug = false, verbose = false, text_y = 12) {
         let hue = map(this.pos.y, height, height-550, 0, 255, true);
         stroke(255-hue, hue, 255- hue/2);
         strokeWeight(2);
         fill(hue-hue/2, 0, 255-hue/2);
         circle(this.pos.x, this.pos.y, this.radius*2);
+
+        if (debug === true) {
+            push();
+            rectMode(CORNER);
+            stroke(220, 100, 0);
+            strokeWeight(3);
+            point(this.pos);
+            strokeWeight(1);
+            noFill();
+            rect(this.hitBoxStart().x, this.hitBoxStart().y, this.hitBoxEnd().x, this.hitBoxEnd().y);
+            pop();
+        }
 
         if (verbose) {
             if (this.pos.y > height - 40) {fill(0);} else {fill(255, 0 ,0)}
@@ -90,6 +127,11 @@ class PhysicalObject {
             textSize(12);
             text(this.text(), 40, text_y)
         }
+    }
+
+    damage(dmg) {
+        this.dmg += dmg;
+        console.log("Physical object has taken " + this.dmg + " damage.");
     }
 
     kill() {
