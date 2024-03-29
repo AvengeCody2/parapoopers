@@ -1,89 +1,118 @@
-class Bullet {
-    constructor (x, y, r) {
-        this.pos = createVector(x, y);
-        this.mass = 6;
-        this.range = r;
-        this.vel = createVector(0, 0);
-        this.acc = createVector(0, 0);
-        this.a_out = "";
-        this.v_out = "";
-        this.p_out = "";
-        this.active = true;
+class Bullet extends PhysicalObject {
+    constructor (x, y, rng) {
+        super(x, y, 6);
+        this.name = "Bullet";
+        this.radius = 1;
+        this.range = rng;
 
-        this.t = millis();
-
-        this.blast = 70;
-    }
-
-    applyForce(force) {
-        let f = p5.Vector.div(force, this.mass);
-        this.acc.add(f);
+        this.blast;
+        this.exploded = false;
+        this.touching = false;
     }
 
     edges() {
         if (this.pos.y > height) {
             this.active = false;
         }
-
-        // if(this.pos.y >= height) {
-        //     this.pos.y = height-this.r;
-        //     this.vel.y *= -0.5;
-        // }
-
-        // if (this.pos.x >= width-55-this.r && this.pos.y > height-550) {
-        //     this.pos.x = width-55-this.r;
-        //     this.vel.x *= -1;
-        // } else if (this.pos.x >= width-55-this.r && this.pos.y >= height-550-(this.r*1.5)) {
-        //     this.pos.y = height-550-this.r;
-        //     this.vel.y *= -1;
-        // } else if ((this.pos.x < 0-this.r) || (this.pos.x > width+this.r)) {
-        //     this.active = false;
-        // }
     }
 
     move() {
-        this.vel.add(this.acc);
-        if (this.vel.y < 0) {
-            this.pos.add(this.vel);
-        } else {
-            this.vel.set(0, 0);
+        if(this.exploded == false) {
+            this.vel.add(this.acc);
+            if (this.vel.y < 0) {
+                this.pos.add(this.vel);
+            } else {
+                this.explode();
+            }
         }
-        // console.log("v_x: " + this.vel.x + "\tv_y: " + this.vel.y);
 
         this.a_out = "ACC(x: " + this.acc.x.toFixed(2) + " y: " + this.acc.y.toFixed(2) + ")\t";
-        this.v_out = "VEL(x: " + this.vel.x.toFixed(2) + " y: " + this.vel.y.toFixed(2) + ")\t";
-        this.p_out = "POS(x: " + this.pos.x.toFixed(2) + " y: " + this.pos.y.toFixed(2) + ")\t";
-
         this.acc.set(0, 0);
     }
 
-    text() {
-        return (this.t_out + this.a_out + this.v_out + this.p_out);
+    explode() {
+        this.vel.set(0, 0);
+        this.blast = new Explosion(this.pos.x, this.pos.y, this.range, 25);
+        // console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
+        this.exploded = true;
+        this.touching = false;
+        // flak_explode.play();
     }
 
-    draw() {
-        rectMode(CENTER);
-        let hue = map(this.range, 300, 700, 175, 255, true);
-        noStroke();
-        fill(hue, 200, 255-hue/2);
+     // Unfortunately, this method appears to do damage every cycle of the loop that it's collision with an enemy object is detected.
+     hits(target) {
+        // if (this.left_most_edge > target.left_most_edge() && this.right_most_edge < target.right_most_edge()) {
+        //     // let d = abs(this.pos.y - target.pos.y);
+        //     // let h = this.radius + target.height;
+        //     console.log("Bullet is between target side edges.")
+        //     if (this.top_most_edge > target.top_most_edge() && this.pos.y - this.radius < target.bottom_most_edge()) {
+        //         // Gotta reset touching on explode.
+        //         if (this.touching == false) {
+        //             if (this.exploded) {
+        //                 target.damage(this.blast.damage);
+        //             } else if(target.name.includes("Enemy")) {
+        //                 this.vel.add(target.vel);
+        //                 target.damage(1);
+        //                 console.log("damaged " + target.name);
+        //             } else {
+        //                 console.log("hit a " + target.name);
+        //             }
 
-        if (this.vel.y == 0) {
-            let now = millis() - this.t;
-            if (now/100 < 20) {
-                fill(hue, 225, 125+(hue/2));
-                let size = map(round(now/100), 0, 20, 1, this.blast);
-                circle(this.pos.x, this.pos.y, size);
-            }
-            if (now/100 > 20) {
+        //             this.touching = true;
+        //         }
+        //     }
+        // }
+
+        let d = p5.Vector.sub(this.pos, target.pos);
+        if (d.mag() < this.radius/2 + target.height/3) {
+            if (this.exploded) {
+                target.damage(this.blast.damage);
+            } else if(target.name == "Enemy") {
+                this.vel.add(target.vel);
+                target.damage(1);
+            }            
+        }
+    }
+
+    
+    draw(verbose = false, text_y = 12) {
+        rectMode(CENTER);
+        angleMode(DEGREES);
+        let hue = map(this.range, 30, 110, 0, 75, true);
+        noStroke();
+        fill(255, 180 + hue, 204);
+
+        //explode
+        if (this.exploded) {
+            if (this.blast.active) {
+                //draw explosion
+                this.blast.draw();
+                this.radius = this.blast.radius;
+                //verbose output to console
+                if(verbose) {
+                    console.log("radius: " + this.radius + "\nblast radius: " + this.blast.radius + "\ntop edge @ y = " + this.top_most_edge());
+                    if (this.radius > this.blast.blast -1) {
+                        console.log(this.text());
+                    }
+                }
+            } else {
                 this.active = false;
             }
         } else {
             push();
             translate(this.pos.x, this.pos.y);
-            rotate(this.vel.heading() - HALF_PI);
+            rotate(this.vel.heading()-90);
             rect(0, 0, 4, 8);
-            circle(0, 4, 4);
+            circle(0, -4, 4);
             pop();
+        }
+
+        if (verbose) {
+            fill(0);
+            stroke(255);
+            strokeWeight(1);
+            textSize(12);
+            text(this.text(), 40, text_y)
         }
     }
 }

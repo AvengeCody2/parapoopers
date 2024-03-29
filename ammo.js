@@ -5,8 +5,10 @@ class Bullet extends PhysicalObject {
         this.radius = 1;
         this.range = rng;
 
+        this.damage = 1;
         this.blast;
         this.exploded = false;
+        // this.touching = false;
     }
 
     edges() {
@@ -31,40 +33,40 @@ class Bullet extends PhysicalObject {
 
     explode() {
         this.vel.set(0, 0);
-        this.blast = new Explosion(this.pos.x, this.pos.y, this.range);
-        // console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
         this.exploded = true;
+        this.blast = new Explosion(this.pos.x, this.pos.y, this.range, 25);
+        // console.log("Blast: " + this.blast.pos + "\tactive: "+ this.blast.active);
+        // this.touching = false;
+        // flak_explode.play();
     }
 
-    // Unfortunately, this method appears to do damage every cycle of the loop that it's collision with an enemy object is detected.
+    // Ammo objects are represented as a point. Targets passed as argument should be PhysicalObjects with hitBox() property.
+    //This function uses Collide2d library
     hits(target) {
-        if (this.pos.x - this.radius > target.left_most_edge() && this.pos.x + this.radius < target.right_most_edge()) {
-            let d = abs(this.pos.y - target.pos.y);
-            let h = this.radius + target.height;
-            if (d < h) {
-                if (this.exploded) {
-                    target.damage(this.blast.blast);
-                } else if(target.name.includes("Enemy")) {
-                    this.vel.add(target.vel);
-                    target.damage(1);
-                    console.log("damaged " + target.name);
-                }
-            }
+        rectMode(CORNER);
+        let hit = false;
+
+        if (!this.exploded){
+            hit = collidePointRectVector(this.pos, target.hitBoxStart(), target.hitBoxEnd());
+        } else {
+            hit = collideRectCircleVector(target.hitBoxStart(), target.hitBoxEnd(), this.blast.pos, this.blast.radius);
         }
 
-        // let d = p5.Vector.sub(this.pos, target.pos);
-        // if (d.mag() < this.radius/2 + target.height/3) {
-        //     if (this.exploded) {
-        //         target.damage(this.blast.blast);
-        //     } else if(target.name == "Enemy") {
-        //         this.vel.add(target.vel);
-        //         target.damage(1);
-        //     }            
-        // }
+        if (hit){
+            if (this.exploded) {
+                target.damage(this.blast.damage);
+            } else if(target.name == "Enemy") {
+                this.vel.add(target.vel);
+                target.damage(this.damage);
+            } 
+        }
+
+        return hit;
     }
     
-    draw(verbose = false, text_y = 12) {
+    draw(debug = false, verbose = false, text_y = 12) {
         rectMode(CENTER);
+        ellipseMode(CENTER);
         angleMode(DEGREES);
         let hue = map(this.range, 30, 110, 0, 75, true);
         noStroke();
@@ -76,6 +78,13 @@ class Bullet extends PhysicalObject {
                 //draw explosion
                 this.blast.draw();
                 this.radius = this.blast.radius;
+                //verbose output to console
+                if(verbose) {
+                    console.log("radius: " + this.radius + "\nblast radius: " + this.blast.radius + "\ntop edge @ y = " + this.top_most_edge());
+                    if (this.radius > this.blast.blast -1) {
+                        console.log(this.text());
+                    }
+                }
             } else {
                 this.active = false;
             }
@@ -87,6 +96,12 @@ class Bullet extends PhysicalObject {
             circle(0, -4, 4);
             pop();
         }
+
+        //for debugging
+        stroke(255, 100, 0);
+        point(this.pos.x, this.pos.y);
+        circle(this.pos.x, this.pos.y, this.radius);
+        
 
         if (verbose) {
             fill(0);
